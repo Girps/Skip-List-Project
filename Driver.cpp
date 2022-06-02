@@ -3,7 +3,8 @@
 /*
 	Author: Jesse Jimenez
 	Date: 5/31/2022
-	Purpose: Implement a Skip list data structures 
+	Purpose: Implement a Skip list data structure with C++ and run a series of
+	Tests on the data structures functions. 
 */
 
 int main()
@@ -16,7 +17,7 @@ int main()
 	list.add_Node(80, 5); 
 	list.add_Node(90, 5); 
 
-	list.remove_Node(5); 
+	list.traverse(); 
 
 
 	return 0; 
