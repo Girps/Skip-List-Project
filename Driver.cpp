@@ -16,8 +16,10 @@ int main()
 	list.add_Node(50, 25); 
 	list.add_Node(80, 5); 
 	list.add_Node(90, 5); 
-
+	std::cout << list.binay_Search(0) << "\n";
 	list.traverse(); 
+	list.free_Nodes(); 
+	std::cout << list.binay_Search(0) << "\n";
 
 
 	return 0; 

@@ -326,7 +326,7 @@ class SkipList
 		bool binay_Search(int key_Param )
 		{
 			std::vector<Node*> update_Vector = update_Vec(key_Param);
-			Node* cursor = update_Vector[0]->update_Vector[0]; 
+			Node* cursor = update_Vector[0]->vec_Levels[0]; 
 			// If node not found throw an execption
 			if (cursor == nullptr) 
 			{
@@ -370,8 +370,8 @@ class SkipList
 			return this->size; 
 		}
 		
-		/* Void function prints data of the skip list */
-		void traverse() 
+		/* Void memeber function traverses and prints data of the skip list */
+		void traverse() const
 		{
 			// first node highest  
 			int level = sentinel->level - 1;
