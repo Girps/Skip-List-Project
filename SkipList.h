@@ -4,6 +4,8 @@
 #include <random>
 
 struct no_such_level_exception {};
+struct no_such_element_exception {};
+
 
 template<typename T>
 class SkipList 
@@ -24,7 +26,7 @@ class SkipList
 				// Initialize update vector to nullptr
 				for (auto it = vec_Levels.begin(); it != vec_Levels.end(); it++) { *it = nullptr;  }
 			}
-			~Node() { printf("~[%d]~",key); }
+			~Node() { printf("~[key: %d]~",key); }
 		};
 
 	private:
@@ -45,9 +47,46 @@ class SkipList
 			return temp; 
 	}
 
+	// Int returning function returns value 50% being 1 or 0
 	int random_Level() 
 	{
 		return flip(rng); 
+	}
+
+
+	/* Vector returning memeber function, builds an update array that holds addresses
+		of node to be assigned to node holding key_Param*/
+	std::vector<Node*> update_Vec(int key_Param)
+	{
+		/*
+			Begin from the highest node and decrement down as follows
+			Assign pointers to node with largest key that is less
+			Than or equal to temp->key if no key exists and null
+			assign to address of current node
+		*/
+		std::vector<Node* > update_Vector;
+		update_Vector.resize(sentinel->level);
+		int curr_Lvl = sentinel->level - 1;
+		Node* cursor = nullptr; // Node traverse vector  
+		for (auto it = update_Vector.rbegin(); it != update_Vector.rend(); ++it)
+		{
+			cursor = sentinel; // Get sent node
+			// Traverse the skip list
+			while (cursor->vec_Levels[curr_Lvl] != nullptr && key_Param > cursor->vec_Levels[curr_Lvl]->key)
+			{
+				// if key >= node->key traverse 
+
+				cursor = cursor->vec_Levels[curr_Lvl];
+
+				// else we get current node 
+			}
+			// Update vector 
+			*it = cursor;
+			// Dec a level 
+			curr_Lvl--;
+		}
+		// Returing update vector
+		return update_Vector;
 	}
 
 	public:
@@ -70,6 +109,7 @@ class SkipList
 		// Destruct and deallocate all nodes in the skip list
 		~SkipList()
 		{
+			printf("\nFree node called\n");
 			free_Nodes(); 
 			printf("\n~Skip list destruct~\n");
 		}
@@ -96,37 +136,10 @@ class SkipList
 			}
 
 			// Now get a instantiate an update vector 
-			std::vector<Node*> update_Vector; 
-			update_Vector.resize(sentinel->level);
-
-			/*
-				Begin from the highest node and decrement down as follows
-				Assign pointers to node with largest key that is less 
-				Than or equal to temp->key if no key exists and null 
-				assign to address of current node
-			*/ 
-			int curr_Lvl = sentinel->level -1;
-			Node* cursor = nullptr; // Node traverse vector  
-			for (auto it = update_Vector.rbegin(); it != update_Vector.rend(); ++it ) 
-			{
-				cursor = sentinel; // Get sent node
-				// Traverse the skip list
-				while (cursor->vec_Levels[curr_Lvl] != nullptr && temp->key >= cursor->vec_Levels[curr_Lvl]->key) 
-				{
-					// if key >= node->key traverse 
-					
-						cursor = cursor->vec_Levels[curr_Lvl]; 
-					
-					// else we get current node 
-				}
-				// Update vector 
-				*it = cursor; 
-				// Dec a level 
-				curr_Lvl--; 
-			}
+			std::vector<Node*> update_Vector = update_Vec(temp->key); 
 
 			// Get level of temp node
-			curr_Lvl = temp->level - 1;
+			int curr_Lvl = temp->level - 1;
 			for (int i = curr_Lvl; i >=0; --i) 
 			{
 				// Traverse down and update forward ptrs of new node
@@ -140,8 +153,35 @@ class SkipList
 				update_Vector[i]->vec_Levels[i] = temp; 
 			}
 		}
-		T remove_Node(int key) {}
-		bool binay_Search(T data, int key ) {}
+
+		/*T returning member function binary searches a node removes and retrieves its data */
+		T remove_Node(int key_Param)
+		{
+			// Get location of the node
+			std::vector<Node*> update_Vector = update_Vec(key_Param);
+			Node* target = nullptr;
+			auto it = update_Vector.rbegin();
+			// Update vector contains address of targeted node
+			target = update_Vector[0]->vec_Levels[0];
+
+			// Throw execption if not found
+			if (target == nullptr ||  target->key != key_Param) { throw no_such_element_exception(); }
+
+			// Reassign pior nodes to addresses of nodes after the target
+			for (int i = target->level-1;i >=0; --i  ) 
+			{
+				update_Vector[i]->vec_Levels[i] = target->vec_Levels[i]; 
+			}
+
+			// Now remove node and return its data
+			T ret_Data = target->data; 
+			delete target; 
+			return ret_Data; 
+		}
+		bool binay_Search(int key )
+		{
+			
+		}
 
 		/*Void function frees the list of nodes that after sent node*/ 
 		void free_Nodes()
